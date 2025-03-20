@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MdKeyboardArrowDown, MdOutlineSubdirectoryArrowRight, MdLogin } from 'react-icons/md';
+import { MdKeyboardArrowDown, MdOutlineSubdirectoryArrowRight, MdLogin, MdMenu, MdClose } from 'react-icons/md';
 import Logo from './Logo';
 import { useAuth } from '../context/AuthContext';
 import Image from 'next/image';
@@ -22,9 +22,11 @@ const Navbar = () => {
     const { user, handleLogout } = useAuth();
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isToolsOpen, setIsToolsOpen] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const pathname = usePathname();
     const profileRef = useRef<HTMLDivElement>(null);
     const toolsRef = useRef<HTMLDivElement>(null);
+    const mobileMenuRef = useRef<HTMLDivElement>(null);
 
     const navItems: NavItem[] = [
     ];
@@ -50,6 +52,9 @@ const Navbar = () => {
             if (toolsRef.current && !toolsRef.current.contains(event.target as Node)) {
                 setIsToolsOpen(false);
             }
+            if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
+                setIsMobileMenuOpen(false);
+            }
         };
 
         document.addEventListener('mousedown', handleClickOutside);
@@ -57,6 +62,11 @@ const Navbar = () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
+
+    // Close mobile menu when route changes
+    useEffect(() => {
+        setIsMobileMenuOpen(false);
+    }, [pathname]);
 
     return (
         <motion.nav 
@@ -325,8 +335,47 @@ const Navbar = () => {
                                 </span>
                             </Link>
                         )}
+                        <button
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            className="ml-4 p-2 rounded-lg hover:bg-gray-800/50 transition-colors duration-200"
+                        >
+                            {isMobileMenuOpen ? (
+                                <MdClose className="w-6 h-6 text-white" />
+                            ) : (
+                                <MdMenu className="w-6 h-6 text-white" />
+                            )}
+                        </button>
                     </div>
                 </div>
+
+                {/* Mobile Menu */}
+                <AnimatePresence>
+                    {isMobileMenuOpen && (
+                        <motion.div
+                            ref={mobileMenuRef}
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="md:hidden overflow-hidden"
+                        >
+                            <div className="py-4 space-y-4">
+                                {toolsItems.map((item) => (
+                                    <Link
+                                        key={item.path}
+                                        href={item.path}
+                                        className="block px-4 py-3 text-sm text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-lg transition-colors duration-200"
+                                        onClick={() => setIsMobileMenuOpen(false)}
+                                    >
+                                        <div className="flex flex-col">
+                                            <span className="font-medium">{item.label}</span>
+                                            <span className="text-xs mt-1">{item.description}</span>
+                                        </div>
+                                    </Link>
+                                ))}
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </motion.nav>
     );
