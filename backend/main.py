@@ -1,6 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from PIL import Image
 import numpy as np
 import string
@@ -39,6 +39,23 @@ os.makedirs(TEMP_DIR, exist_ok=True)
 
 class DetectionResponse(BaseModel):
     detection_result: str
+
+@app.get("/")
+@app.head("/")
+async def health_check():
+    """Health check endpoint."""
+    return JSONResponse(
+        content={
+            "status": "healthy",
+            "message": "Markora API is running",
+            "version": "1.0.0",
+            "endpoints": {
+                "upload": "/api/upload",
+                "detect": "/api/detect"
+            }
+        },
+        status_code=200
+    )
 
 def embed_watermark_lsb(file: UploadFile, text: str) -> str:
     """Embed watermark using LSB steganography."""
