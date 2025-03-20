@@ -20,18 +20,28 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://markora.vercel.app", "https://markora-git-main-nandishchampaneria.vercel.app", "https://markora.onrender.com"],
+    allow_origins=["*"],  # Allow all origins temporarily for testing
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"],
+    allow_methods=["*"],  # Allow all methods temporarily for testing
     allow_headers=["*"],
     expose_headers=["*"],
     max_age=3600,
 )
 
+# Add request logging middleware
+@app.middleware("http")
+async def log_requests(request, call_next):
+    print(f"Request: {request.method} {request.url}")
+    print(f"Headers: {request.headers}")
+    response = await call_next(request)
+    print(f"Response status: {response.status_code}")
+    return response
+
 # Health check endpoint
 @app.get("/")
 @app.head("/")
 async def health_check():
+    print("Health check endpoint called")
     return {"status": "healthy", "message": "Markora API is running"}
 
 # Constants
@@ -225,7 +235,10 @@ async def upload_file(file: UploadFile = File(...), text: str = Form(...)):
             io.BytesIO(file_content),
             media_type=file.content_type,
             headers={
-                "Content-Disposition": f'attachment; filename="watermarked_{file.filename}"'
+                "Content-Disposition": f'attachment; filename="watermarked_{file.filename}"',
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "*",
+                "Access-Control-Allow-Headers": "*"
             }
         )
 
