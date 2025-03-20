@@ -234,18 +234,7 @@ async def upload_file(
             logger.error(f"File too large: {file_size/1024/1024:.2f} MB")
             raise HTTPException(status_code=400, detail="File size must be less than 10MB")
 
-        # Check for existing watermark
-        logger.info("Checking for existing watermark...")
-        file.file.seek(0)
-        detection_result = detect_watermark_lsb(file)
-        logger.info(f"Detection result: {detection_result}")
-        
-        if "Watermark detected" in detection_result:
-            logger.warning("Existing watermark found")
-            raise HTTPException(
-                status_code=400,
-                detail="This image already has a watermark. Cannot add another."
-            )
+
 
         # Append company name to watermark text
         watermarked_text = f"{text} - {COMPANY_NAME}"
