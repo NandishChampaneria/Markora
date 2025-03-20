@@ -27,6 +27,7 @@ app.add_middleware(
 
 # Health check endpoint
 @app.get("/")
+@app.head("/")
 async def health_check():
     return {"status": "healthy", "message": "Markora API is running"}
 
