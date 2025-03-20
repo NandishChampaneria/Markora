@@ -114,24 +114,33 @@ def embed_watermark_lsb(file: UploadFile, text: str) -> str:
 def detect_watermark_lsb(file: UploadFile) -> str:
     """Detect watermark using LSB steganography."""
     try:
+        logger.info("Starting watermark detection...")
         image = Image.open(file.file)
         
         # Check image dimensions
         width, height = image.size
+        logger.info(f"Image dimensions: {width}x{height} pixels")
+        
         if width > MAX_IMAGE_DIMENSION or height > MAX_IMAGE_DIMENSION:
             logger.warning(f"Image too large: {width}x{height} pixels")
             return 'No watermark detected'
             
+        logger.info("Converting image to RGB...")
         image = image.convert('RGB')
+        logger.info("Converting image to numpy array...")
         data = np.array(image)
 
         # Process the image in chunks to be more memory efficient
         chunk_size = 1000  # Process 1000 rows at a time
         binary_data = ''
+        total_chunks = (height + chunk_size - 1) // chunk_size
+        logger.info(f"Processing image in {total_chunks} chunks of {chunk_size} rows each")
         
-        for i in range(0, height, chunk_size):
-            end_row = min(i + chunk_size, height)
-            chunk = data[i:end_row]
+        for chunk_index in range(0, height, chunk_size):
+            end_row = min(chunk_index + chunk_size, height)
+            logger.info(f"Processing chunk {chunk_index//chunk_size + 1}/{total_chunks} (rows {chunk_index} to {end_row})")
+            
+            chunk = data[chunk_index:end_row]
             
             # Process the chunk
             for row in chunk:
@@ -144,31 +153,40 @@ def detect_watermark_lsb(file: UploadFile) -> str:
             if len(binary_data) >= 16:
                 length_binary = binary_data[:16]
                 text_length = int(length_binary, 2)
+                logger.info(f"Found watermark length: {text_length} bits")
                 
                 # If we have enough data for the watermark, stop processing
                 if len(binary_data) >= 16 + text_length:
+                    logger.info("Found complete watermark data, stopping processing")
                     break
 
         if len(binary_data) < 16:
+            logger.info("Not enough binary data for watermark length")
             return 'No watermark detected'
 
         length_binary = binary_data[:16]
         text_length = int(length_binary, 2)
+        logger.info(f"Extracting watermark text (length: {text_length} bits)")
 
         if text_length > len(binary_data) - 16:
+            logger.warning(f"Invalid watermark length: {text_length} bits")
             return 'No watermark detected'
 
         binary_watermark = binary_data[16:16 + text_length]
         chars = [binary_watermark[i:i+8] for i in range(0, len(binary_watermark), 8)]
         detected_text = ''.join([chr(int(char, 2)) for char in chars if len(char) == 8])
+        logger.info(f"Detected text: {detected_text}")
 
         if is_gibberish(detected_text):
+            logger.info("Detected text is gibberish")
             return 'No watermark detected'
 
         # Verify if the watermark contains your company name
         if COMPANY_NAME in detected_text:
+            logger.info("Valid watermark found")
             return f'Watermark detected: {detected_text}'
         else:
+            logger.info("No valid watermark found")
             return 'No valid watermark found'
     except Exception as e:
         logger.error(f"Error in detect_watermark_lsb: {str(e)}")
@@ -197,7 +215,12 @@ async def upload_file(
     text: str = Form(...)
 ):
     """Upload and watermark an image."""
+    logger.info(f"Received upload request for file: {file.filename}")
+    logger.info(f"Content type: {file.content_type}")
+    logger.info(f"Watermark text: {text}")
+
     if not file.content_type.startswith('image/'):
+        logger.error(f"Invalid file type: {file.content_type}")
         raise HTTPException(status_code=400, detail="File must be an image")
 
     try:
@@ -205,13 +228,20 @@ async def upload_file(
         file.file.seek(0, 2)  # Seek to end
         file_size = file.file.tell()
         file.file.seek(0)  # Reset pointer
+        logger.info(f"File size: {file_size/1024/1024:.2f} MB")
         
         if file_size > MAX_FILE_SIZE:
+            logger.error(f"File too large: {file_size/1024/1024:.2f} MB")
             raise HTTPException(status_code=400, detail="File size must be less than 10MB")
 
         # Check for existing watermark
+        logger.info("Checking for existing watermark...")
+        file.file.seek(0)
         detection_result = detect_watermark_lsb(file)
+        logger.info(f"Detection result: {detection_result}")
+        
         if "Watermark detected" in detection_result:
+            logger.warning("Existing watermark found")
             raise HTTPException(
                 status_code=400,
                 detail="This image already has a watermark. Cannot add another."
@@ -219,14 +249,22 @@ async def upload_file(
 
         # Append company name to watermark text
         watermarked_text = f"{text} - {COMPANY_NAME}"
+        logger.info(f"Final watermark text: {watermarked_text}")
 
+        # Reset file pointer for watermark embedding
+        file.file.seek(0)
+        logger.info("Starting watermark embedding...")
+        
         # Embed watermark
         output_path = embed_watermark_lsb(file, watermarked_text)
+        logger.info(f"Watermark embedded successfully. Output path: {output_path}")
 
         # Get the original file extension
         file_extension = file.filename.rsplit('.', 1)[-1].lower()
         mimetype = f"image/{file_extension}"
+        logger.info(f"File extension: {file_extension}, MIME type: {mimetype}")
 
+        logger.info("Sending response...")
         return FileResponse(
             output_path,
             media_type=mimetype,
@@ -246,6 +284,7 @@ async def upload_file(
         try:
             if 'output_path' in locals() and os.path.exists(output_path):
                 os.remove(output_path)
+                logger.info("Temporary file cleaned up")
         except Exception as e:
             logger.error(f"Error cleaning up temporary file: {str(e)}")
 
