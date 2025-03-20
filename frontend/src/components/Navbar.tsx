@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MdMenu, MdClose, MdPerson, MdOutlineSubdirectoryArrowRight, MdKeyboardArrowDown, MdLogin } from 'react-icons/md';
+import { MdMenu, MdClose, MdOutlineHome, MdOutlineSearch, MdOutlineUploadFile, MdOutlinePerson, MdOutlineLogout, MdKeyboardArrowDown, MdOutlineSubdirectoryArrowRight, MdLogin } from 'react-icons/md';
 import Logo from './Logo';
 import { useAuth } from '../context/AuthContext';
 

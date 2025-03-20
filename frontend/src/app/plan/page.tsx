@@ -7,7 +7,7 @@ import BackgroundDots from '../../components/BackgroundDots';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { motion } from "framer-motion";
 
 const PlanPage = () => {
   const { user } = useAuth();

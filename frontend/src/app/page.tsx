@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import Link from 'next/link';
-import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import { MdOutlineSubdirectoryArrowRight, MdOutlineUploadFile, MdOutlineTextFields, MdOutlineDownload, MdOutlineSearch, MdOutlineAnalytics, MdOutlineCheckCircle, MdKeyboardArrowDown, MdOutlineModeComment } from 'react-icons/md';
 import { TbHandClick } from "react-icons/tb";
 import { FiUsers } from "react-icons/fi";
@@ -482,7 +482,7 @@ export default function HomePage() {
               <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm font-light opacity-75 hover:opacity-100">Instagram</a>
             </div>
           </motion.div>
-    </div>
+        </div>
       </motion.footer>
     </main>
   );

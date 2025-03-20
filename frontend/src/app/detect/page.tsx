@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { MdOutlineFileUpload, MdCheckCircle, MdError, MdInfo } from "react-icons/md";
 import { PulseLoader } from "react-spinners";
 import BackgroundDots from '../../components/BackgroundDots';
+import Image from 'next/image';
 
 interface DetectionResult {
   detection_result: string;
@@ -158,11 +159,14 @@ const DetectionPage = () => {
             <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-800">
               <div className="h-[400px] rounded-xl overflow-hidden bg-gray-800/50 flex items-center justify-center">
                 {imagePreview ? (
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="object-contain w-full h-full p-4"
-                  />
+                  <div className="relative w-full h-64">
+                    <Image
+                      src={imagePreview}
+                      alt="Preview"
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
                 ) : (
                   <div className="text-center">
                     <MdOutlineFileUpload className="w-16 h-16 mx-auto text-gray-500 mb-4" />

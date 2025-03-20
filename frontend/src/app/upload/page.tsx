@@ -6,6 +6,7 @@ import { PulseLoader } from "react-spinners";
 import { useAuth } from '../../context/AuthContext';
 import BackgroundDots from '../../components/BackgroundDots';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const FileUploadForm = () => {
   const { user, loading, updateUserEmbeds } = useAuth();
@@ -172,16 +173,14 @@ const FileUploadForm = () => {
                   </div>
                 </div>
                 <div className="h-[400px] rounded-xl overflow-hidden bg-gray-800/50 flex items-center justify-center">
-                  {previewUrl ? (
-                    <img
-                      src={previewUrl}
-                      alt="Preview"
-                      className="object-contain w-full h-full p-4"
-                    />
-                  ) : (
-                    <div className="text-center">
-                      <MdOutlineFileUpload className="w-16 h-16 mx-auto text-gray-500 mb-4" />
-                      <p className="text-gray-400">No file selected</p>
+                  {previewUrl && (
+                    <div className="relative w-full h-64">
+                      <Image
+                        src={previewUrl}
+                        alt="Preview"
+                        fill
+                        className="object-contain"
+                      />
                     </div>
                   )}
                 </div>
