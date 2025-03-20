@@ -108,7 +108,6 @@ const BatchUploadForm = () => {
 
     try {
       const results: ProcessedFile[] = [];
-      let completedFiles = 0;
 
       for (const file of files) {
         try {
@@ -139,8 +138,6 @@ const BatchUploadForm = () => {
             url,
             originalSize: file.size,
           });
-
-          completedFiles++;
 
           setProcessingStatus(prev => ({
             ...prev,
