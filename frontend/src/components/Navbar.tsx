@@ -241,7 +241,7 @@ const Navbar = () => {
                     {/* Mobile Menu Button */}
                     <div className="md:hidden flex items-center">
                         {user ? (
-                            <div className="relative mr-4" ref={profileRef}>
+                            <div className="relative mr-2" ref={profileRef}>
                                 <button
                                     onClick={() => setIsProfileOpen(!isProfileOpen)}
                                     className="flex items-center space-x-2 focus:outline-none"
@@ -322,28 +322,17 @@ const Navbar = () => {
                                     )}
                                 </AnimatePresence>
                             </div>
-                        ) : (
-                            <Link
-                                href="/login"
-                                className="group relative px-4 py-2 text-sm font-medium text-white rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/20"
-                            >
-                                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 opacity-90 group-hover:opacity-100 transition-opacity duration-300" />
-                                <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.1)_50%,transparent_75%)] bg-[length:250%_250%] group-hover:bg-[position:100%_100%] transition-[background-position] duration-500" />
-                                <span className="relative flex items-center">
-                                    <MdLogin className="w-4 h-4 mr-2" />
-                                    Login
-                                </span>
-                            </Link>
-                        )}
+                        ) : null}
                         <button
-                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="ml-4 p-2 rounded-lg hover:bg-gray-800/50 transition-colors duration-200"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIsMobileMenuOpen(!isMobileMenuOpen);
+                            }}
+                            className="relative w-6 h-6 flex items-center justify-center focus:outline-none"
                         >
-                            {isMobileMenuOpen ? (
-                                <MdClose className="w-6 h-6 text-white" />
-                            ) : (
-                                <MdMenu className="w-6 h-6 text-white" />
-                            )}
+                            <MdKeyboardArrowDown 
+                                className={`w-5 h-5 text-white transition-transform duration-200 ${isMobileMenuOpen ? 'transform rotate-180' : ''}`} 
+                            />
                         </button>
                     </div>
                 </div>
@@ -364,7 +353,10 @@ const Navbar = () => {
                                         key={item.path}
                                         href={item.path}
                                         className="block px-4 py-3 text-sm text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-lg transition-colors duration-200"
-                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        onClick={() => {
+                                            setIsMobileMenuOpen(false);
+                                            setIsProfileOpen(false);
+                                        }}
                                     >
                                         <div className="flex flex-col">
                                             <span className="font-medium">{item.label}</span>
@@ -372,6 +364,21 @@ const Navbar = () => {
                                         </div>
                                     </Link>
                                 ))}
+                                {!user && (
+                                    <Link
+                                        href="/login"
+                                        className="block px-4 py-3 text-sm text-gray-400 hover:text-white hover:bg-gray-800/50 rounded-lg transition-colors duration-200"
+                                        onClick={() => {
+                                            setIsMobileMenuOpen(false);
+                                            setIsProfileOpen(false);
+                                        }}
+                                    >
+                                        <div className="flex items-center">
+                                            <MdLogin className="w-4 h-4 mr-2" />
+                                            <span className="font-medium">Login</span>
+                                        </div>
+                                    </Link>
+                                )}
                             </div>
                         </motion.div>
                     )}

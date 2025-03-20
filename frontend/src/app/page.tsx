@@ -466,8 +466,8 @@ export default function HomePage() {
                 <h4 className="text-white font-medium mb-3 font-display text-sm uppercase tracking-wider">Company</h4>
                 <ul className="space-y-2">
                   <li><Link href="/plan" className="text-gray-400 hover:text-white transition-colors text-sm font-light">Pricing</Link></li>
-                  <li><Link href="/privacy" className="text-gray-400 hover:text-white transition-colors text-sm font-light">Privacy Policy</Link></li>
-                  <li><Link href="/terms" className="text-gray-400 hover:text-white transition-colors text-sm font-light">Terms</Link></li>
+                  <li><Link href="/privacy" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors text-sm font-light">Privacy Policy</Link></li>
+                  <li><Link href="/terms" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors text-sm font-light">Terms</Link></li>
                 </ul>
               </div>
             </motion.div>

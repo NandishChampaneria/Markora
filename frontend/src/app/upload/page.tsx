@@ -183,14 +183,15 @@ const FileUploadForm = () => {
                     Logged in as {user.email}
                   </div>
                 </div>
-                <div className="h-[400px] rounded-xl overflow-hidden bg-gray-800/50 flex items-center justify-center">
+                <div className="h-[400px] rounded-xl overflow-hidden bg-gray-800/50 flex items-center justify-center p-6">
                   {previewUrl && (
-                    <div className="relative w-full h-64">
+                    <div className="relative w-full h-full">
                       <Image
                         src={previewUrl}
                         alt="Preview"
                         fill
                         className="object-contain"
+                        sizes="(max-width: 768px) 100vw, 50vw"
                       />
                     </div>
                   )}

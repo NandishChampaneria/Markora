@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
+import { headers } from 'next/headers';
 
 const poppins = Poppins({
   weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
@@ -22,16 +23,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const headersList = await headers();
+  const pathname = headersList.get('x-pathname') || '';
+  const showNavbar = !pathname.includes('/privacy');
+
   return (
     <html lang="en">
       <body className={`${poppins.className} bg-black text-white`}>
         <AuthProvider>
-          <Navbar />
+          {showNavbar && <Navbar />}
           <main className="">
             {children}
           </main>

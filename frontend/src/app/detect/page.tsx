@@ -157,20 +157,16 @@ const DetectionPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Image Preview Section */}
             <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-800">
-              <div className="h-[400px] rounded-xl overflow-hidden bg-gray-800/50 flex items-center justify-center">
-                {imagePreview ? (
-                  <div className="relative w-full h-64">
+              <div className="h-[400px] rounded-xl overflow-hidden bg-gray-800/50 flex items-center justify-center p-6">
+                {imagePreview && (
+                  <div className="relative w-full h-full">
                     <Image
                       src={imagePreview}
                       alt="Preview"
                       fill
                       className="object-contain"
+                      sizes="(max-width: 768px) 100vw, 50vw"
                     />
-                  </div>
-                ) : (
-                  <div className="text-center">
-                    <MdOutlineFileUpload className="w-16 h-16 mx-auto text-gray-500 mb-4" />
-                    <p className="text-gray-400">No file selected</p>
                   </div>
                 )}
               </div>
