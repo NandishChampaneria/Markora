@@ -7,6 +7,7 @@ import { MdOutlineSubdirectoryArrowRight, MdOutlineUploadFile, MdOutlineTextFiel
 import { TbHandClick } from "react-icons/tb";
 import { FiUsers } from "react-icons/fi";
 import TextFlip from '../components/TextFlip';
+import Image from 'next/image';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
@@ -399,10 +400,12 @@ export default function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative">
                   <div className="flex items-center mb-6">
-                    <img
+                    <Image
                       src={testimonial.image}
                       alt={testimonial.name}
-                      className="w-12 h-12 rounded-full border-2 border-indigo-500"
+                      width={48}
+                      height={48}
+                      className="rounded-full border-2 border-indigo-500"
                     />
                     <div className="ml-4">
                       <h4 className="text-white font-medium font-display">{testimonial.name}</h4>
@@ -410,7 +413,7 @@ export default function HomePage() {
                     </div>
                   </div>
                   <p className="text-gray-300 font-light leading-relaxed">
-                    "{testimonial.review}"
+                    &ldquo;{testimonial.review}&rdquo;
                   </p>
                   <div className="mt-6 flex items-center">
                     <div className="flex text-yellow-400">

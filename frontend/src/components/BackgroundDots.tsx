@@ -27,7 +27,6 @@ const BackgroundDots: React.FC<BackgroundDotsProps> = ({
     if (!ctx) return;
 
     let animationFrameId: number;
-    let time = 0;
 
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
@@ -67,7 +66,6 @@ const BackgroundDots: React.FC<BackgroundDotsProps> = ({
         }
       }
 
-      time += 0.01;
       animationFrameId = requestAnimationFrame(drawDots);
     };
 

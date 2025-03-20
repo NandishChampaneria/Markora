@@ -209,23 +209,6 @@ const BatchUploadForm = () => {
     );
   };
 
-  const renderOverallProgress = () => {
-    if (!isProcessing && !processedFiles.length) return null;
-
-    return (
-      <div className="mb-6 p-4 rounded-xl bg-gray-800/50 border border-gray-700">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-gray-300">Overall Progress</span>
-          <span className="text-sm font-medium text-indigo-400">{Math.round(overallProgress)}%</span>
-        </div>
-        {renderProgressBar(overallProgress, overallProgress === 100 ? 'completed' : 'processing')}
-        <p className="mt-2 text-sm text-gray-400">
-          {processedFiles.length} of {files.length} files processed
-        </p>
-      </div>
-    );
-  };
-
   if (loading) {
     return (
       <div className="container mx-auto px-4 pt-24">

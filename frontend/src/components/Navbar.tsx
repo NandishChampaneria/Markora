@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MdMenu, MdClose, MdOutlineHome, MdOutlineSearch, MdOutlineUploadFile, MdOutlinePerson, MdOutlineLogout, MdKeyboardArrowDown, MdOutlineSubdirectoryArrowRight, MdLogin } from 'react-icons/md';
 import Logo from './Logo';
 import { useAuth } from '../context/AuthContext';
+import Image from 'next/image';
 
 interface NavItem {
     path: string;
@@ -58,10 +59,6 @@ const Navbar = () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
-
-    const isActive = (path: string) => {
-        return pathname === path;
-    };
 
     return (
         <motion.nav 
@@ -142,10 +139,12 @@ const Navbar = () => {
                                     onClick={() => setIsProfileOpen(!isProfileOpen)}
                                     className="flex cursor-pointer items-center space-x-2 focus:outline-none"
                                 >
-                                    <img
+                                    <Image
                                         src={user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email || 'User')}&background=random`}
                                         alt={`${user.displayName || user.email || 'User'} profile picture`}
-                                        className="w-8 h-8 rounded-full border-2 border-indigo-500"
+                                        width={32}
+                                        height={32}
+                                        className="rounded-full border-2 border-indigo-500"
                                     />
                                 </button>
                                 <AnimatePresence>
@@ -158,10 +157,12 @@ const Navbar = () => {
                                         >
                                             <div className="px-4 py-3 border-b border-gray-800">
                                                 <div className="flex items-center space-x-3">
-                                                    <img
+                                                    <Image
                                                         src={user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email || 'User')}&background=random`}
                                                         alt={`${user.displayName || user.email || 'User'} profile picture`}
-                                                        className="w-10 h-10 rounded-full border-2 border-indigo-500 flex-shrink-0"
+                                                        width={40}
+                                                        height={40}
+                                                        className="rounded-full border-2 border-indigo-500 flex-shrink-0"
                                                     />
                                                     <div className="min-w-0">
                                                         <p className="text-sm font-medium text-white truncate">{user.displayName || (user.email ? user.email.split('@')[0] : 'User')}</p>
@@ -233,10 +234,12 @@ const Navbar = () => {
                                     onClick={() => setIsProfileOpen(!isProfileOpen)}
                                     className="flex items-center space-x-2 focus:outline-none"
                                 >
-                                    <img
+                                    <Image
                                         src={user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email || 'User')}&background=random`}
                                         alt={`${user.displayName || user.email || 'User'} profile picture`}
-                                        className="w-8 h-8 rounded-full border-2 border-indigo-500"
+                                        width={32}
+                                        height={32}
+                                        className="rounded-full border-2 border-indigo-500"
                                     />
                                 </button>
                                 <AnimatePresence>
@@ -249,10 +252,12 @@ const Navbar = () => {
                                         >
                                             <div className="px-4 py-3 border-b border-gray-800">
                                                 <div className="flex items-center space-x-3">
-                                                    <img
+                                                    <Image
                                                         src={user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email || 'User')}&background=random`}
                                                         alt={`${user.displayName || user.email || 'User'} profile picture`}
-                                                        className="w-10 h-10 rounded-full border-2 border-indigo-500 flex-shrink-0"
+                                                        width={40}
+                                                        height={40}
+                                                        className="rounded-full border-2 border-indigo-500 flex-shrink-0"
                                                     />
                                                     <div className="min-w-0">
                                                         <p className="text-sm font-medium text-white truncate">{user.displayName || (user.email ? user.email.split('@')[0] : 'User')}</p>
