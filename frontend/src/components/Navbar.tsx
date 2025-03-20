@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MdMenu, MdClose, MdOutlineHome, MdOutlineSearch, MdOutlineUploadFile, MdOutlinePerson, MdOutlineLogout, MdKeyboardArrowDown, MdOutlineSubdirectoryArrowRight, MdLogin } from 'react-icons/md';
+import { MdKeyboardArrowDown, MdOutlineSubdirectoryArrowRight, MdLogin } from 'react-icons/md';
 import Logo from './Logo';
 import { useAuth } from '../context/AuthContext';
 import Image from 'next/image';
@@ -298,7 +298,7 @@ const Navbar = () => {
                                                     handleLogout();
                                                     setIsProfileOpen(false);
                                                 }}
-                                                className="w-full text-left px-4 py-3 text-sm text-red-400 hover:bg-gray-800/50 hover:text-red-300 transition-all duration-200 flex items-center space-x-3"
+                                                className="w-full cursor-pointer text-left px-4 py-3 text-sm text-red-400 hover:bg-gray-800/50 hover:text-red-300 transition-all duration-200 flex items-center space-x-3"
                                             >
                                                 <span>Logout</span>
                                             </button>
@@ -307,78 +307,23 @@ const Navbar = () => {
                                 </AnimatePresence>
                             </div>
                         ) : (
-                            <Link 
+                            <Link
                                 href="/login"
-                                className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 mr-4"
+                                className="group relative px-4 py-2 text-sm font-medium text-white rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/20"
                             >
-                                Login
+                                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 opacity-90 group-hover:opacity-100 transition-opacity duration-300" />
+                                <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.1)_50%,transparent_75%)] bg-[length:250%_250%] group-hover:bg-[position:100%_100%] transition-[background-position] duration-500" />
+                                <span className="relative flex items-center">
+                                    <MdLogin className="w-4 h-4 mr-2" />
+                                    Login
+                                </span>
                             </Link>
                         )}
-                        <button
-                            onClick={() => setIsMenuOpen(!isMenuOpen)}
-                            className="text-gray-400 hover:text-white focus:outline-none"
-                        >
-                            {isMenuOpen ? (
-                                <MdClose className="w-6 h-6" />
-                            ) : (
-                                <MdMenu className="w-6 h-6" />
-                            )}
-                        </button>
                     </div>
                 </div>
-
-                {/* Mobile Navigation */}
-                <AnimatePresence>
-                    {isMenuOpen && (
-                        <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="md:hidden bg-transparent border-b border-gray-800"
-                        >
-                            <div className="px-2 pt-2 pb-3 space-y-1">
-                                {navItems.map((item) => (
-                                    <Link
-                                        key={item.path}
-                                        href={item.path}
-                                        className={`block px-3 py-2 rounded-md text-base font-medium ${
-                                            pathname === item.path
-                                                ? 'text-white bg-gray-800'
-                                                : 'text-gray-400 hover:text-white hover:bg-gray-800'
-                                        }`}
-                                        onClick={() => setIsMenuOpen(false)}
-                                    >
-                                        {item.label}
-                                    </Link>
-                                ))}
-                                <div className="px-3 py-2">
-                                    <div className="space-y-1">
-                                        {toolsItems.map((item) => (
-                                            <Link
-                                                key={item.path}
-                                                href={item.path}
-                                                className={`block px-3 py-2 rounded-md text-sm ${
-                                                    pathname === item.path
-                                                        ? 'text-white bg-gray-800'
-                                                        : 'text-gray-400 hover:text-white hover:bg-gray-800'
-                                                }`}
-                                                onClick={() => setIsMenuOpen(false)}
-                                            >
-                                                <div className="flex flex-col">
-                                                    <span>{item.label}</span>
-                                                    <span className="text-xs text-gray-500 mt-1">{item.description}</span>
-                                                </div>
-                                            </Link>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
             </div>
         </motion.nav>
     );
 };
 
-export default Navbar; 
+export default Navbar;

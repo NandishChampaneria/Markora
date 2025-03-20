@@ -30,7 +30,6 @@ const BatchUploadForm = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processedFiles, setProcessedFiles] = useState<ProcessedFile[]>([]);
   const [processingStatus, setProcessingStatus] = useState<ProcessingStatus>({});
-  const [overallProgress, setOverallProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [isLinkCopied, setIsLinkCopied] = useState(false);
@@ -56,13 +55,11 @@ const BatchUploadForm = () => {
     setFiles(prevFiles => [...prevFiles, ...validFiles]);
     setError(null);
     setProcessingStatus({});
-    setOverallProgress(0);
   };
 
   const removeFile = (index: number) => {
     setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
     setProcessingStatus({});
-    setOverallProgress(0);
   };
 
   const handleTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,7 +105,6 @@ const BatchUploadForm = () => {
     setError(null);
     setProcessedFiles([]);
     setProcessingStatus({});
-    setOverallProgress(0);
 
     try {
       const results: ProcessedFile[] = [];
@@ -146,7 +142,6 @@ const BatchUploadForm = () => {
 
           completedFiles++;
           const progress = (completedFiles / files.length) * 100;
-          setOverallProgress(progress);
 
           setProcessingStatus(prev => ({
             ...prev,
