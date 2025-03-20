@@ -142,7 +142,7 @@ const Navbar = () => {
                                         alt={`${user.displayName || user.email || 'User'} profile picture`}
                                         width={32}
                                         height={32}
-                                        className="rounded-full border-2 border-indigo-500"
+                                        className="rounded-full border-2 border-indigo-500 object-cover"
                                     />
                                 </button>
                                 <AnimatePresence>
@@ -160,7 +160,7 @@ const Navbar = () => {
                                                         alt={`${user.displayName || user.email || 'User'} profile picture`}
                                                         width={40}
                                                         height={40}
-                                                        className="rounded-full border-2 border-indigo-500 flex-shrink-0"
+                                                        className="rounded-full border-2 border-indigo-500 flex-shrink-0 object-cover"
                                                     />
                                                     <div className="min-w-0">
                                                         <p className="text-sm font-medium text-white truncate">{user.displayName || (user.email ? user.email.split('@')[0] : 'User')}</p>
@@ -237,7 +237,7 @@ const Navbar = () => {
                                         alt={`${user.displayName || user.email || 'User'} profile picture`}
                                         width={32}
                                         height={32}
-                                        className="rounded-full border-2 border-indigo-500"
+                                        className="rounded-full border-2 border-indigo-500 object-cover"
                                     />
                                 </button>
                                 <AnimatePresence>
@@ -255,7 +255,7 @@ const Navbar = () => {
                                                         alt={`${user.displayName || user.email || 'User'} profile picture`}
                                                         width={40}
                                                         height={40}
-                                                        className="rounded-full border-2 border-indigo-500 flex-shrink-0"
+                                                        className="rounded-full border-2 border-indigo-500 flex-shrink-0 object-cover"
                                                     />
                                                     <div className="min-w-0">
                                                         <p className="text-sm font-medium text-white truncate">{user.displayName || (user.email ? user.email.split('@')[0] : 'User')}</p>

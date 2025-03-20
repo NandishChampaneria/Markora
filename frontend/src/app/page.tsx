@@ -405,7 +405,7 @@ export default function HomePage() {
                       alt={testimonial.name}
                       width={48}
                       height={48}
-                      className="rounded-full border-2 border-indigo-500"
+                      className="rounded-full border-2 border-indigo-500 object-cover"
                     />
                     <div className="ml-4">
                       <h4 className="text-white font-medium font-display">{testimonial.name}</h4>
