@@ -400,13 +400,15 @@ export default function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative">
                   <div className="flex items-center mb-6">
-                    <Image
-                      src={testimonial.image}
-                      alt={testimonial.name}
-                      width={48}
-                      height={48}
-                      className="rounded-full border-2 border-indigo-500 object-cover aspect-square"
-                    />
+                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-indigo-500">
+                      <Image
+                        src={testimonial.image}
+                        alt={testimonial.name}
+                        width={48}
+                        height={48}
+                        className="object-cover"
+                      />
+                    </div>
                     <div className="ml-4">
                       <h4 className="text-white font-medium font-display">{testimonial.name}</h4>
                       <p className="text-gray-400 text-sm">{testimonial.occupation}</p>

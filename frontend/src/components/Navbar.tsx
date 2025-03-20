@@ -137,13 +137,15 @@ const Navbar = () => {
                                     onClick={() => setIsProfileOpen(!isProfileOpen)}
                                     className="flex cursor-pointer items-center space-x-2 focus:outline-none"
                                 >
-                                    <Image
-                                        src={user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email || 'User')}&background=random`}
-                                        alt={`${user.displayName || user.email || 'User'} profile picture`}
-                                        width={32}
-                                        height={32}
-                                        className="rounded-full border-2 border-indigo-500 object-cover aspect-square"
-                                    />
+                                    <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-indigo-500">
+                                        <Image
+                                            src={user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email || 'User')}&background=random`}
+                                            alt={`${user.displayName || user.email || 'User'} profile picture`}
+                                            width={32}
+                                            height={32}
+                                            className="object-cover"
+                                        />
+                                    </div>
                                 </button>
                                 <AnimatePresence>
                                     {isProfileOpen && (
@@ -155,13 +157,15 @@ const Navbar = () => {
                                         >
                                             <div className="px-4 py-3 border-b border-gray-800">
                                                 <div className="flex items-center space-x-3">
-                                                    <Image
-                                                        src={user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email || 'User')}&background=random`}
-                                                        alt={`${user.displayName || user.email || 'User'} profile picture`}
-                                                        width={40}
-                                                        height={40}
-                                                        className="rounded-full border-2 border-indigo-500 flex-shrink-0 object-cover aspect-square"
-                                                    />
+                                                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-indigo-500 flex-shrink-0">
+                                                        <Image
+                                                            src={user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email || 'User')}&background=random`}
+                                                            alt={`${user.displayName || user.email || 'User'} profile picture`}
+                                                            width={40}
+                                                            height={40}
+                                                            className="object-cover"
+                                                        />
+                                                    </div>
                                                     <div className="min-w-0">
                                                         <p className="text-sm font-medium text-white truncate">{user.displayName || (user.email ? user.email.split('@')[0] : 'User')}</p>
                                                         <p className="text-xs text-gray-400 truncate">{user.email || 'No email provided'}</p>
@@ -232,13 +236,15 @@ const Navbar = () => {
                                     onClick={() => setIsProfileOpen(!isProfileOpen)}
                                     className="flex items-center space-x-2 focus:outline-none"
                                 >
-                                    <Image
-                                        src={user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email || 'User')}&background=random`}
-                                        alt={`${user.displayName || user.email || 'User'} profile picture`}
-                                        width={32}
-                                        height={32}
-                                        className="rounded-full border-2 border-indigo-500 object-cover aspect-square"
-                                    />
+                                    <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-indigo-500">
+                                        <Image
+                                            src={user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email || 'User')}&background=random`}
+                                            alt={`${user.displayName || user.email || 'User'} profile picture`}
+                                            width={32}
+                                            height={32}
+                                            className="object-cover"
+                                        />
+                                    </div>
                                 </button>
                                 <AnimatePresence>
                                     {isProfileOpen && (
@@ -250,13 +256,15 @@ const Navbar = () => {
                                         >
                                             <div className="px-4 py-3 border-b border-gray-800">
                                                 <div className="flex items-center space-x-3">
-                                                    <Image
-                                                        src={user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email || 'User')}&background=random`}
-                                                        alt={`${user.displayName || user.email || 'User'} profile picture`}
-                                                        width={40}
-                                                        height={40}
-                                                        className="rounded-full border-2 border-indigo-500 flex-shrink-0 object-cover aspect-square"
-                                                    />
+                                                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-indigo-500 flex-shrink-0">
+                                                        <Image
+                                                            src={user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email || 'User')}&background=random`}
+                                                            alt={`${user.displayName || user.email || 'User'} profile picture`}
+                                                            width={40}
+                                                            height={40}
+                                                            className="object-cover"
+                                                        />
+                                                    </div>
                                                     <div className="min-w-0">
                                                         <p className="text-sm font-medium text-white truncate">{user.displayName || (user.email ? user.email.split('@')[0] : 'User')}</p>
                                                         <p className="text-xs text-gray-400 truncate">{user.email || 'No email provided'}</p>
