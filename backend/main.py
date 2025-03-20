@@ -9,6 +9,11 @@ from typing import Optional
 import tempfile
 from pydantic import BaseModel
 import io
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -31,22 +36,29 @@ app.add_middleware(
 # Add request logging middleware
 @app.middleware("http")
 async def log_requests(request, call_next):
-    print(f"Request: {request.method} {request.url}")
-    print(f"Headers: {request.headers}")
-    response = await call_next(request)
-    print(f"Response status: {response.status_code}")
-    return response
+    logger.info(f"Request: {request.method} {request.url}")
+    logger.info(f"Headers: {request.headers}")
+    try:
+        response = await call_next(request)
+        logger.info(f"Response status: {response.status_code}")
+        return response
+    except Exception as e:
+        logger.error(f"Error processing request: {str(e)}")
+        raise
 
 # Health check endpoint
 @app.get("/")
 @app.head("/")
 async def health_check():
-    print("Health check endpoint called")
+    logger.info("Health check endpoint called")
     return {"status": "healthy", "message": "Markora API is running"}
 
 # Constants
 COMPANY_NAME = "Embedded with Markora"
 TEMP_DIR = tempfile.gettempdir()
+
+# Ensure temp directory exists
+os.makedirs(TEMP_DIR, exist_ok=True)
 
 class DetectionResponse(BaseModel):
     detection_result: str
@@ -54,6 +66,7 @@ class DetectionResponse(BaseModel):
 def embed_watermark_lsb(file: UploadFile, text: str) -> str:
     """Embed watermark using LSB steganography."""
     try:
+        logger.info(f"Starting watermark embedding for file: {file.filename}")
         # Open and convert image to RGB
         image = Image.open(file.file)
         image = image.convert('RGB')  # Convert to RGB to avoid mode issues
@@ -104,14 +117,17 @@ def embed_watermark_lsb(file: UploadFile, text: str) -> str:
         format_name = format_map.get(file_extension, 'PNG')
         
         # Generate output filename
-        output_filename = os.path.join(TEMP_DIR, f'watermarked_image.{file_extension}')
+        output_filename = os.path.join(TEMP_DIR, f'watermarked_image_{os.urandom(4).hex()}.{file_extension}')
+        logger.info(f"Saving watermarked image to: {output_filename}")
 
         # Save the image
         watermarked_image.save(output_filename, format=format_name)
+        logger.info("Image saved successfully")
         
         return output_filename
 
     except Exception as e:
+        logger.error(f"Error in embed_watermark_lsb: {str(e)}")
         raise ValueError(f"Error processing image: {str(e)}")
 
 def detect_watermark_lsb(file: UploadFile) -> str:
@@ -167,12 +183,12 @@ def is_gibberish(text: str) -> bool:
 async def upload_file(file: UploadFile = File(...), text: str = Form(...)):
     """Upload and process an image file."""
     try:
-        print(f"Received upload request for file: {file.filename}, content_type: {file.content_type}")
-        print(f"Watermark text: {text}")
+        logger.info(f"Received upload request for file: {file.filename}, content_type: {file.content_type}")
+        logger.info(f"Watermark text: {text}")
 
         # Validate file type
         if not file.content_type.startswith('image/'):
-            print(f"Invalid file type: {file.content_type}")
+            logger.error(f"Invalid file type: {file.content_type}")
             raise HTTPException(status_code=400, detail="File must be an image")
         
         # Validate file size (max 10MB)
@@ -180,57 +196,57 @@ async def upload_file(file: UploadFile = File(...), text: str = Form(...)):
         file.file.seek(0, 2)  # Seek to end of file
         file_size = file.file.tell()
         file.file.seek(0)  # Reset file pointer
-        print(f"File size: {file_size} bytes")
+        logger.info(f"File size: {file_size} bytes")
         
         if file_size > 10 * 1024 * 1024:  # 10MB in bytes
-            print(f"File too large: {file_size} bytes")
+            logger.error(f"File too large: {file_size} bytes")
             raise HTTPException(status_code=400, detail="File size must be less than 10MB")
 
         # Check if image already has a watermark
         try:
-            print("Checking for existing watermark...")
+            logger.info("Checking for existing watermark...")
             existing_watermark = detect_watermark_lsb(file)
             if existing_watermark:
-                print(f"Existing watermark found: {existing_watermark}")
+                logger.info(f"Existing watermark found: {existing_watermark}")
                 raise HTTPException(status_code=400, detail="Image already contains a watermark")
-            print("No existing watermark found")
+            logger.info("No existing watermark found")
         except Exception as e:
-            print(f"Error checking for existing watermark: {str(e)}")
+            logger.error(f"Error checking for existing watermark: {str(e)}")
             # If detection fails, assume no watermark exists
             pass
 
         # Embed watermark
         try:
-            print("Starting watermark embedding...")
+            logger.info("Starting watermark embedding...")
             output_path = embed_watermark_lsb(file, text)
-            print(f"Watermark embedded successfully. Output path: {output_path}")
+            logger.info(f"Watermark embedded successfully. Output path: {output_path}")
         except ValueError as e:
-            print(f"ValueError during watermark embedding: {str(e)}")
+            logger.error(f"ValueError during watermark embedding: {str(e)}")
             raise HTTPException(status_code=400, detail=str(e))
         except Exception as e:
-            print(f"Error during watermark embedding: {str(e)}")
+            logger.error(f"Error during watermark embedding: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Error processing image: {str(e)}")
 
         # Read the processed file
         try:
-            print("Reading processed file...")
+            logger.info("Reading processed file...")
             with open(output_path, "rb") as f:
                 file_content = f.read()
-            print(f"File read successfully. Size: {len(file_content)} bytes")
+            logger.info(f"File read successfully. Size: {len(file_content)} bytes")
         except Exception as e:
-            print(f"Error reading processed file: {str(e)}")
+            logger.error(f"Error reading processed file: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Error reading processed file: {str(e)}")
 
         # Clean up temporary file
         try:
-            print("Cleaning up temporary file...")
+            logger.info("Cleaning up temporary file...")
             os.remove(output_path)
-            print("Temporary file removed successfully")
+            logger.info("Temporary file removed successfully")
         except Exception as e:
-            print(f"Warning: Could not remove temporary file: {str(e)}")
+            logger.error(f"Warning: Could not remove temporary file: {str(e)}")
 
         # Return the processed file
-        print("Sending response...")
+        logger.info("Sending response...")
         return StreamingResponse(
             io.BytesIO(file_content),
             media_type=file.content_type,
@@ -243,10 +259,10 @@ async def upload_file(file: UploadFile = File(...), text: str = Form(...)):
         )
 
     except HTTPException as he:
-        print(f"HTTPException: {str(he)}")
+        logger.error(f"HTTPException: {str(he)}")
         raise he
     except Exception as e:
-        print(f"Unexpected error: {str(e)}")
+        logger.error(f"Unexpected error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 @app.post("/api/detect", response_model=DetectionResponse)
@@ -265,4 +281,6 @@ async def detect_file(file: UploadFile = File(...)):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=5001) 
+    port = int(os.environ.get("PORT", 5001))
+    logger.info(f"Starting server on port {port}")
+    uvicorn.run(app, host="0.0.0.0", port=port) 
