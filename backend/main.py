@@ -33,6 +33,8 @@ app.add_middleware(
 # Constants
 COMPANY_NAME = "Embedded with Markora"
 TEMP_DIR = tempfile.gettempdir()
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+MAX_IMAGE_DIMENSION = 5000  # 5000x5000 pixels
 
 # Ensure temp directory exists
 os.makedirs(TEMP_DIR, exist_ok=True)
@@ -59,115 +61,118 @@ async def health_check():
 
 def embed_watermark_lsb(file: UploadFile, text: str) -> str:
     """Embed watermark using LSB steganography."""
-    image = Image.open(file.file)
-    image = image.convert('RGB')  # Convert to RGB to avoid mode issues
-    data = np.array(image)
-
-    # Convert text to binary
-    binary_watermark = ''.join(format(ord(char), '08b') for char in text)
-    length_binary = format(len(binary_watermark), '016b')  # Store length in first 16 bits
-    full_binary = length_binary + binary_watermark
-
-    height, width, _ = data.shape
-    if len(full_binary) > height * width * 3:
-        raise ValueError("The watermark text is too long to embed in this image")
-
-    idx = 0
-    for i in range(height):
-        for j in range(width):
-            if idx < len(full_binary):
-                r, g, b = data[i, j]
-                r = (r & 0xFE) | int(full_binary[idx])
-                idx += 1
-                if idx < len(full_binary):
-                    g = (g & 0xFE) | int(full_binary[idx])
-                    idx += 1
-                if idx < len(full_binary):
-                    b = (b & 0xFE) | int(full_binary[idx])
-                    idx += 1
-                data[i, j] = [r, g, b]
-
-    # Save the watermarked image with the same format as the original
-    watermarked_image = Image.fromarray(data)
-
-    # Get the original file extension
-    file_extension = file.filename.rsplit('.', 1)[-1].lower()
-
-    # Save the image in the original format or default to PNG if not supported
-    output_filename = os.path.join(TEMP_DIR, f'watermarked_image.{file_extension}')
-
     try:
-        # Save the image in its original format
-        watermarked_image.save(output_filename, format=file_extension.upper())
-    except Exception as e:
-        # Default to saving as PNG if format is unknown or an error occurs
-        watermarked_image.save(output_filename, format='PNG')
+        image = Image.open(file.file)
+        image = image.convert('RGB')  # Convert to RGB to avoid mode issues
+        data = np.array(image)
 
-    return output_filename
+        # Convert text to binary
+        binary_watermark = ''.join(format(ord(char), '08b') for char in text)
+        length_binary = format(len(binary_watermark), '016b')  # Store length in first 16 bits
+        full_binary = length_binary + binary_watermark
+
+        height, width, _ = data.shape
+        if len(full_binary) > height * width * 3:
+            raise ValueError("The watermark text is too long to embed in this image")
+
+        idx = 0
+        for i in range(height):
+            for j in range(width):
+                if idx < len(full_binary):
+                    r, g, b = data[i, j]
+                    r = (r & 0xFE) | int(full_binary[idx])
+                    idx += 1
+                    if idx < len(full_binary):
+                        g = (g & 0xFE) | int(full_binary[idx])
+                        idx += 1
+                    if idx < len(full_binary):
+                        b = (b & 0xFE) | int(full_binary[idx])
+                        idx += 1
+                    data[i, j] = [r, g, b]
+
+        # Save the watermarked image with the same format as the original
+        watermarked_image = Image.fromarray(data)
+
+        # Get the original file extension
+        file_extension = file.filename.rsplit('.', 1)[-1].lower()
+
+        # Save the image in the original format or default to PNG if not supported
+        output_filename = os.path.join(TEMP_DIR, f'watermarked_image_{os.urandom(4).hex()}.{file_extension}')
+
+        try:
+            # Save the image in its original format
+            watermarked_image.save(output_filename, format=file_extension.upper())
+        except Exception as e:
+            # Default to saving as PNG if format is unknown or an error occurs
+            watermarked_image.save(output_filename, format='PNG')
+
+        return output_filename
+    except Exception as e:
+        logger.error(f"Error in embed_watermark_lsb: {str(e)}")
+        raise
 
 def detect_watermark_lsb(file: UploadFile) -> str:
     """Detect watermark using LSB steganography."""
     try:
-        logger.info("Opening image file...")
         image = Image.open(file.file)
-        logger.info("Converting image to RGB...")
+        
+        # Check image dimensions
+        width, height = image.size
+        if width > MAX_IMAGE_DIMENSION or height > MAX_IMAGE_DIMENSION:
+            logger.warning(f"Image too large: {width}x{height} pixels")
+            return 'No watermark detected'
+            
         image = image.convert('RGB')
-        logger.info("Converting image to numpy array...")
         data = np.array(image)
 
-        logger.info("Extracting binary data...")
+        # Process the image in chunks to be more memory efficient
+        chunk_size = 1000  # Process 1000 rows at a time
         binary_data = ''
-        height, width, _ = data.shape
-        total_pixels = height * width
-        processed_pixels = 0
         
-        for i in range(height):
-            for j in range(width):
-                r, g, b = data[i, j]
-                binary_data += str(r & 1)
-                binary_data += str(g & 1)
-                binary_data += str(b & 1)
-                processed_pixels += 1
+        for i in range(0, height, chunk_size):
+            end_row = min(i + chunk_size, height)
+            chunk = data[i:end_row]
+            
+            # Process the chunk
+            for row in chunk:
+                for r, g, b in row:
+                    binary_data += str(r & 1)
+                    binary_data += str(g & 1)
+                    binary_data += str(b & 1)
+            
+            # Early exit if we have enough data for watermark length
+            if len(binary_data) >= 16:
+                length_binary = binary_data[:16]
+                text_length = int(length_binary, 2)
                 
-                # Log progress every 100000 pixels
-                if processed_pixels % 100000 == 0:
-                    logger.info(f"Processed {processed_pixels}/{total_pixels} pixels")
+                # If we have enough data for the watermark, stop processing
+                if len(binary_data) >= 16 + text_length:
+                    break
 
-        logger.info("Extracting watermark length...")
         if len(binary_data) < 16:
-            logger.warning("Binary data too short to contain watermark length")
             return 'No watermark detected'
 
-        length_binary = binary_data[:16]  # First 16 bits store length
+        length_binary = binary_data[:16]
         text_length = int(length_binary, 2)
-        
+
         if text_length > len(binary_data) - 16:
-            logger.warning(f"Invalid watermark length: {text_length}")
             return 'No watermark detected'
 
-        logger.info(f"Extracting watermark text (length: {text_length})...")
         binary_watermark = binary_data[16:16 + text_length]
-
         chars = [binary_watermark[i:i+8] for i in range(0, len(binary_watermark), 8)]
         detected_text = ''.join([chr(int(char, 2)) for char in chars if len(char) == 8])
 
-        logger.info(f"Detected text: {detected_text}")
-
         if is_gibberish(detected_text):
-            logger.info("Detected text is gibberish")
             return 'No watermark detected'
 
         # Verify if the watermark contains your company name
         if COMPANY_NAME in detected_text:
-            logger.info("Valid watermark found")
             return f'Watermark detected: {detected_text}'
         else:
-            logger.info("No valid watermark found")
             return 'No valid watermark found'
-
     except Exception as e:
         logger.error(f"Error in detect_watermark_lsb: {str(e)}")
-        return 'No watermark detected'  # Return this instead of raising to prevent upload failures
+        return 'No watermark detected'
 
 def is_gibberish(text: str) -> bool:
     """Check if text is gibberish."""
@@ -192,23 +197,21 @@ async def upload_file(
     text: str = Form(...)
 ):
     """Upload and watermark an image."""
-    logger.info(f"Received upload request for file: {file.filename}")
-    logger.info(f"Content type: {file.content_type}")
-    logger.info(f"Watermark text: {text}")
-
     if not file.content_type.startswith('image/'):
-        logger.error(f"Invalid file type: {file.content_type}")
         raise HTTPException(status_code=400, detail="File must be an image")
 
     try:
-        # Check for existing watermark
-        logger.info("Checking for existing watermark...")
-        file.file.seek(0)  # Reset file pointer
-        detection_result = detect_watermark_lsb(file)
-        logger.info(f"Detection result: {detection_result}")
+        # Check file size
+        file.file.seek(0, 2)  # Seek to end
+        file_size = file.file.tell()
+        file.file.seek(0)  # Reset pointer
         
+        if file_size > MAX_FILE_SIZE:
+            raise HTTPException(status_code=400, detail="File size must be less than 10MB")
+
+        # Check for existing watermark
+        detection_result = detect_watermark_lsb(file)
         if "Watermark detected" in detection_result:
-            logger.warning("Existing watermark found")
             raise HTTPException(
                 status_code=400,
                 detail="This image already has a watermark. Cannot add another."
@@ -216,27 +219,14 @@ async def upload_file(
 
         # Append company name to watermark text
         watermarked_text = f"{text} - {COMPANY_NAME}"
-        logger.info(f"Final watermark text: {watermarked_text}")
 
-        # Reset file pointer for watermark embedding
-        file.file.seek(0)
-        logger.info("Starting watermark embedding...")
-        
         # Embed watermark
         output_path = embed_watermark_lsb(file, watermarked_text)
-        logger.info(f"Watermark embedded successfully. Output path: {output_path}")
 
         # Get the original file extension
         file_extension = file.filename.rsplit('.', 1)[-1].lower()
         mimetype = f"image/{file_extension}"
-        logger.info(f"File extension: {file_extension}, MIME type: {mimetype}")
 
-        # Verify file exists before sending
-        if not os.path.exists(output_path):
-            logger.error(f"Output file not found: {output_path}")
-            raise HTTPException(status_code=500, detail="Error: Generated file not found")
-
-        logger.info("Sending response...")
         return FileResponse(
             output_path,
             media_type=mimetype,
@@ -248,18 +238,14 @@ async def upload_file(
             }
         )
 
-    except HTTPException as he:
-        logger.error(f"HTTP Exception: {str(he)}")
-        raise he
     except Exception as e:
-        logger.error(f"Unexpected error: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Error processing image: {str(e)}")
+        logger.error(f"Error in upload_file: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
     finally:
         # Clean up temporary file if it exists
         try:
             if 'output_path' in locals() and os.path.exists(output_path):
                 os.remove(output_path)
-                logger.info("Temporary file cleaned up")
         except Exception as e:
             logger.error(f"Error cleaning up temporary file: {str(e)}")
 
@@ -270,11 +256,20 @@ async def detect_file(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="File must be an image")
 
     try:
+        # Check file size
+        file.file.seek(0, 2)  # Seek to end
+        file_size = file.file.tell()
+        file.file.seek(0)  # Reset pointer
+        
+        if file_size > MAX_FILE_SIZE:
+            raise HTTPException(status_code=400, detail="File size must be less than 10MB")
+
         # Detect watermark
         detection_result = detect_watermark_lsb(file)
         return DetectionResponse(detection_result=detection_result)
 
     except Exception as e:
+        logger.error(f"Error in detect_file: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
