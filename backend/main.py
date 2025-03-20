@@ -92,8 +92,8 @@ def embed_watermark_lsb(file: UploadFile, text: str) -> str:
         logger.info("Starting pixel processing")
         idx = 0
         for i in range(height):
-            if i % 100 == 0:  # Log progress every 100 rows
-                logger.info(f"Processing row {i}/{height}")
+            if i % 1000 == 0:  # Log progress every 1000 rows instead of 100
+                logger.info(f"Processing row {i}/{height} ({(i/height*100):.1f}%)")
             for j in range(width):
                 if idx < len(full_binary):
                     r, g, b = data[i, j]
@@ -119,8 +119,18 @@ def embed_watermark_lsb(file: UploadFile, text: str) -> str:
         logger.info(f"Saving watermarked image to: {output_filename}")
 
         try:
-            watermarked_image.save(output_filename, format=file_extension.upper())
-            logger.info("Image saved successfully")
+            # Handle common image formats
+            format_map = {
+                'jpg': 'JPEG',
+                'jpeg': 'JPEG',
+                'png': 'PNG',
+                'gif': 'GIF',
+                'bmp': 'BMP',
+                'webp': 'WEBP'
+            }
+            save_format = format_map.get(file_extension, 'PNG')
+            watermarked_image.save(output_filename, format=save_format)
+            logger.info(f"Image saved successfully in {save_format} format")
         except Exception as e:
             logger.warning(f"Failed to save in original format: {str(e)}")
             watermarked_image.save(output_filename, format='PNG')
@@ -149,8 +159,8 @@ def detect_watermark_lsb(file: UploadFile) -> str:
         binary_data = ''
         height, width, _ = data.shape
         for i in range(height):
-            if i % 100 == 0:  # Log progress every 100 rows
-                logger.info(f"Processing row {i}/{height}")
+            if i % 1000 == 0:  # Log progress every 1000 rows instead of 100
+                logger.info(f"Processing row {i}/{height} ({(i/height*100):.1f}%)")
             for j in range(width):
                 r, g, b = data[i, j]
                 binary_data += str(r & 1)
@@ -278,6 +288,7 @@ def cleanup_file(file_path: str):
             logger.info("Temporary file removed successfully")
     except Exception as e:
         logger.error(f"Error cleaning up temporary file: {str(e)}")
+        # Don't raise the exception, just log it
 
 @app.post("/api/detect", response_model=DetectionResponse)
 async def detect_file(file: UploadFile = File(...)):
