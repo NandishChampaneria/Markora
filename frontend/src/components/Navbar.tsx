@@ -20,7 +20,6 @@ interface ToolItem extends NavItem {
 
 const Navbar = () => {
     const { user, handleLogout } = useAuth();
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isToolsOpen, setIsToolsOpen] = useState(false);
     const pathname = usePathname();
@@ -38,7 +37,6 @@ const Navbar = () => {
 
     // Close menu when route changes
     useEffect(() => {
-        setIsMenuOpen(false);
         setIsProfileOpen(false);
         setIsToolsOpen(false);
     }, [pathname]);

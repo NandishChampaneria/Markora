@@ -141,7 +141,6 @@ const BatchUploadForm = () => {
           });
 
           completedFiles++;
-          const progress = (completedFiles / files.length) * 100;
 
           setProcessingStatus(prev => ({
             ...prev,
