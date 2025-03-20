@@ -73,6 +73,8 @@ const FileUploadForm = () => {
       formData.append('text', text);
       formData.append('user_email', user.email || '');
 
+      console.log('Making request to:', `${process.env.NEXT_PUBLIC_API_URL}/api/upload`);
+      
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/upload`, {
         method: 'POST',
         body: formData,
@@ -88,7 +90,7 @@ const FileUploadForm = () => {
             </div>
           );
         } else {
-          throw new Error('Failed to process file');
+          throw new Error(errorData.detail || 'Failed to process file');
         }
         return;
       }
@@ -102,6 +104,7 @@ const FileUploadForm = () => {
         await updateUserEmbeds(user.remainingEmbeds - 1);
       }
     } catch (error) {
+      console.error('Error:', error);
       setError('Error processing file: ' + (error instanceof Error ? error.message : 'Unknown error'));
     } finally {
       setIsProcessing(false);
