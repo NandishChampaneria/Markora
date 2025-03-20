@@ -22,8 +22,10 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000", "https://markora.vercel.app", "https://markora-git-main-nandishchampaneria.vercel.app", "https://markora.onrender.com"],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"],
     allow_headers=["*"],
+    expose_headers=["*"],
+    max_age=3600,
 )
 
 # Health check endpoint
@@ -155,8 +157,12 @@ def is_gibberish(text: str) -> bool:
 async def upload_file(file: UploadFile = File(...), text: str = Form(...)):
     """Upload and process an image file."""
     try:
+        print(f"Received upload request for file: {file.filename}, content_type: {file.content_type}")
+        print(f"Watermark text: {text}")
+
         # Validate file type
         if not file.content_type.startswith('image/'):
+            print(f"Invalid file type: {file.content_type}")
             raise HTTPException(status_code=400, detail="File must be an image")
         
         # Validate file size (max 10MB)
@@ -164,40 +170,57 @@ async def upload_file(file: UploadFile = File(...), text: str = Form(...)):
         file.file.seek(0, 2)  # Seek to end of file
         file_size = file.file.tell()
         file.file.seek(0)  # Reset file pointer
+        print(f"File size: {file_size} bytes")
+        
         if file_size > 10 * 1024 * 1024:  # 10MB in bytes
+            print(f"File too large: {file_size} bytes")
             raise HTTPException(status_code=400, detail="File size must be less than 10MB")
 
         # Check if image already has a watermark
         try:
+            print("Checking for existing watermark...")
             existing_watermark = detect_watermark_lsb(file)
             if existing_watermark:
+                print(f"Existing watermark found: {existing_watermark}")
                 raise HTTPException(status_code=400, detail="Image already contains a watermark")
+            print("No existing watermark found")
         except Exception as e:
+            print(f"Error checking for existing watermark: {str(e)}")
             # If detection fails, assume no watermark exists
             pass
 
         # Embed watermark
         try:
+            print("Starting watermark embedding...")
             output_path = embed_watermark_lsb(file, text)
+            print(f"Watermark embedded successfully. Output path: {output_path}")
         except ValueError as e:
+            print(f"ValueError during watermark embedding: {str(e)}")
             raise HTTPException(status_code=400, detail=str(e))
         except Exception as e:
+            print(f"Error during watermark embedding: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Error processing image: {str(e)}")
 
         # Read the processed file
         try:
+            print("Reading processed file...")
             with open(output_path, "rb") as f:
                 file_content = f.read()
+            print(f"File read successfully. Size: {len(file_content)} bytes")
         except Exception as e:
+            print(f"Error reading processed file: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Error reading processed file: {str(e)}")
 
         # Clean up temporary file
         try:
+            print("Cleaning up temporary file...")
             os.remove(output_path)
+            print("Temporary file removed successfully")
         except Exception as e:
             print(f"Warning: Could not remove temporary file: {str(e)}")
 
         # Return the processed file
+        print("Sending response...")
         return StreamingResponse(
             io.BytesIO(file_content),
             media_type=file.content_type,
@@ -207,8 +230,10 @@ async def upload_file(file: UploadFile = File(...), text: str = Form(...)):
         )
 
     except HTTPException as he:
+        print(f"HTTPException: {str(he)}")
         raise he
     except Exception as e:
+        print(f"Unexpected error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 @app.post("/api/detect", response_model=DetectionResponse)

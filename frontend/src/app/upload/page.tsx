@@ -73,15 +73,22 @@ const FileUploadForm = () => {
       formData.append('text', text);
       formData.append('user_email', user.email || '');
 
-      console.log('Making request to:', `${process.env.NEXT_PUBLIC_API_URL}/api/upload`);
+      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/upload`;
+      console.log('Making request to:', apiUrl);
+      console.log('File:', file.name, 'Type:', file.type, 'Size:', file.size);
+      console.log('Text:', text);
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/upload`, {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         body: formData,
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({ detail: 'Failed to parse error response' }));
+        console.error('Error response:', errorData);
         if (errorData.error === 'This image already has a watermark. Cannot add another.') {
           setError(
             <div className="flex items-center space-x-2">
@@ -96,6 +103,7 @@ const FileUploadForm = () => {
       }
 
       const blob = await response.blob();
+      console.log('Received blob:', blob.size, 'bytes');
       const url = URL.createObjectURL(blob);
       setProcessedFile({ url, name: file.name });
 
@@ -104,7 +112,7 @@ const FileUploadForm = () => {
         await updateUserEmbeds(user.remainingEmbeds - 1);
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error details:', error);
       setError('Error processing file: ' + (error instanceof Error ? error.message : 'Unknown error'));
     } finally {
       setIsProcessing(false);
