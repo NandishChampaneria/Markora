@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
 import { headers } from 'next/headers';
+import { Analytics } from '@vercel/analytics/react';
 
 const poppins = Poppins({
   weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
@@ -30,16 +31,17 @@ export default async function RootLayout({
 }) {
   const headersList = await headers();
   const pathname = headersList.get('x-pathname') || '';
-  const showNavbar = !pathname.includes('/privacy');
+  const isLegalPage = pathname.includes('/privacy') || pathname.includes('/terms');
 
   return (
     <html lang="en">
-      <body className={`${poppins.className} bg-black text-white`}>
+      <body className={`${poppins.className} bg-black text-white min-h-screen`}>
         <AuthProvider>
-          {showNavbar && <Navbar />}
-          <main className="">
+          {!isLegalPage && <Navbar />}
+          <main className={`${isLegalPage ? 'min-h-screen' : ''}`}>
             {children}
           </main>
+          <Analytics />
         </AuthProvider>
       </body>
     </html>
