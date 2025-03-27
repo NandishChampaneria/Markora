@@ -37,7 +37,7 @@ export default function HomePage() {
   const heroRef = useRef(null);
   const stepsRef = useRef(null);
   const faqRef = useRef(null);
-  const testimonialsRef = useRef(null);
+  // const testimonialsRef = useRef(null);
   const footerRef = useRef(null);
   const feedbackRef = useRef(null);
 
@@ -75,26 +75,26 @@ export default function HomePage() {
     }
   ];
 
-  const testimonials = [
-    {
-      name: "Jane Doe",
-      image: "https://ui-avatars.com/api/?name=Jane+Doe&background=random",
-      occupation: "Professional Photographer",
-      review: "The invisible watermarking system has been a game-changer for my photography business. It's seamless, reliable, and gives me peace of mind knowing my work is protected."
-    },
-    {
-      name: "John Smith",
-      image: "https://ui-avatars.com/api/?name=John+Smith&background=random",
-      occupation: "Content Creator",
-      review: "I've been using Markora for my YouTube videos, and it's a game-changer. The watermark is invisible, so it doesn't affect the video's quality, but it's still easy to detect if someone tries to steal my content."
-    },
-    {
-      name: "Sarah Chen",
-      image: "https://ui-avatars.com/api/?name=Sarah+Chen&background=random",
-      occupation: "Graphic Designer",
-      review: "Markora has made it easy to protect my designs. The watermark is invisible, so it doesn't affect the design's quality, but it's still easy to detect if someone tries to steal my work."
-    },
-  ];
+  // const testimonials = [
+  //   {
+  //     name: "Jane Doe",
+  //     image: "https://ui-avatars.com/api/?name=Jane+Doe&background=random",
+  //     occupation: "Professional Photographer",
+  //     review: "The invisible watermarking system has been a game-changer for my photography business. It's seamless, reliable, and gives me peace of mind knowing my work is protected."
+  //   },
+  //   {
+  //     name: "John Smith",
+  //     image: "https://ui-avatars.com/api/?name=John+Smith&background=random",
+  //     occupation: "Content Creator",
+  //     review: "I've been using Markora for my YouTube videos, and it's a game-changer. The watermark is invisible, so it doesn't affect the video's quality, but it's still easy to detect if someone tries to steal my content."
+  //   },
+  //   {
+  //     name: "Sarah Chen",
+  //     image: "https://ui-avatars.com/api/?name=Sarah+Chen&background=random",
+  //     occupation: "Graphic Designer",
+  //     review: "Markora has made it easy to protect my designs. The watermark is invisible, so it doesn't affect the design's quality, but it's still easy to detect if someone tries to steal my work."
+  //   },
+  // ];
 
   // Viewport detection
   const heroInView = useInView(heroRef, { once: true, margin: "-100px" });
