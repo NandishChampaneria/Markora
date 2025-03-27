@@ -3,11 +3,13 @@
 import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { motion, useInView } from 'framer-motion';
-import { MdOutlineSubdirectoryArrowRight, MdOutlineUploadFile, MdOutlineTextFields, MdOutlineDownload, MdOutlineSearch, MdOutlineAnalytics, MdOutlineCheckCircle, MdKeyboardArrowDown, MdOutlineModeComment } from 'react-icons/md';
+import { MdOutlineSubdirectoryArrowRight, MdOutlineUploadFile, MdOutlineTextFields, MdOutlineDownload, MdOutlineSearch, MdOutlineAnalytics, MdOutlineCheckCircle, MdKeyboardArrowDown, MdOutlineModeComment, MdOutlineStar, MdOutlineStarBorder, MdOutlineFeedback } from 'react-icons/md';
 import { TbHandClick } from "react-icons/tb";
 import { FiUsers } from "react-icons/fi";
 import TextFlip from '../components/TextFlip';
 import Image from 'next/image';
+import emailjs from '@emailjs/browser';
+import { PulseLoader } from 'react-spinners';
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
@@ -39,9 +41,21 @@ export default function HomePage() {
   const faqRef = useRef(null);
   const testimonialsRef = useRef(null);
   const footerRef = useRef(null);
+  const feedbackRef = useRef(null);
 
   // State for FAQ items
   const [openFaqItems, setOpenFaqItems] = useState([false, false, false, false]);
+  const [feedbackForm, setFeedbackForm] = useState({
+    name: '',
+    email: '',
+    rating: 0,
+    feedback: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<{
+    type: 'success' | 'error' | null;
+    message: string;
+  }>({ type: null, message: '' });
 
   // FAQ data
   const faqItems = [
@@ -90,6 +104,7 @@ export default function HomePage() {
   const faqInView = useInView(faqRef, { once: true, margin: "-100px" });
   const testimonialsInView = useInView(testimonialsRef, { once: true, margin: "-50px" });
   const footerInView = useInView(footerRef, { once: true, margin: "-100px" });
+  const feedbackInView = useInView(feedbackRef, { once: true, margin: "-100px" });
 
   // Function to toggle FAQ item
   const toggleFaqItem = (index: number) => {
@@ -98,6 +113,61 @@ export default function HomePage() {
       newState[index] = !newState[index];
       return newState;
     });
+  };
+
+  const handleFeedbackChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFeedbackForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleRatingClick = (rating: number) => {
+    setFeedbackForm(prev => ({
+      ...prev,
+      rating
+    }));
+  };
+
+  const handleFeedbackSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus({ type: null, message: '' });
+
+    try {
+      await emailjs.send(
+        'service_zgdv9y3', // Replace with your EmailJS service ID
+        'template_i3k9zrb', // Replace with your EmailJS template ID
+        {
+          from_name: feedbackForm.name,
+          from_email: feedbackForm.email,
+          rating: feedbackForm.rating,
+          message: feedbackForm.feedback
+        },
+        'XgUHv45g2kyc1WgOu' // Replace with your EmailJS public key
+      );
+
+      setSubmitStatus({
+        type: 'success',
+        message: 'Thank you for your feedback!'
+      });
+      
+      // Reset form
+      setFeedbackForm({
+        name: '',
+        email: '',
+        rating: 0,
+        feedback: ''
+      });
+    } catch (error) {
+      setSubmitStatus({
+        type: 'error',
+        message: 'Failed to send feedback. Please try again later.'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -366,7 +436,7 @@ export default function HomePage() {
         </motion.div>
 
         {/* Testimonials Section */}
-        <motion.div 
+        {/* <motion.div 
           ref={testimonialsRef}
           initial="hidden"
           animate={testimonialsInView ? "visible" : "hidden"}
@@ -429,6 +499,130 @@ export default function HomePage() {
                 </div>
               </motion.div>
             ))}
+          </motion.div>
+        </motion.div> */}
+
+        {/* Feedback Section */}
+        <motion.div 
+          ref={feedbackRef}
+          initial="hidden"
+          animate={feedbackInView ? "visible" : "hidden"}
+          variants={fadeInUp}
+          transition={{ duration: 0.8 }}
+          className="mt-32"
+        >
+          <motion.div 
+            variants={fadeInUp}
+            className="text-center items-center flex flex-col mb-16"
+          >
+            <MdOutlineFeedback className="text-indigo-500 items-center text-2xl mb-4" />
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text font-display tracking-tight">
+              Your Feedback Matters
+            </h2>
+            <p className="text-gray-400 text-lg font-light">
+              Help us improve Markora by sharing your thoughts
+            </p>
+          </motion.div>
+
+          <motion.div 
+            variants={fadeInUp}
+            className="max-w-4xl mx-auto"
+          >
+            <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-800">
+              <form onSubmit={handleFeedbackSubmit} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={feedbackForm.name}
+                    onChange={handleFeedbackChange}
+                    placeholder="Your name"
+                    required
+                    className="w-full p-3 rounded-xl border border-gray-700 bg-gray-800/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={feedbackForm.email}
+                    onChange={handleFeedbackChange}
+                    placeholder="your@email.com"
+                    required
+                    className="w-full p-3 rounded-xl border border-gray-700 bg-gray-800/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Rating
+                  </label>
+                  <div className="flex space-x-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => handleRatingClick(star)}
+                        className="text-2xl text-gray-400 hover:text-yellow-400 transition-colors"
+                      >
+                        {star <= feedbackForm.rating ? (
+                          <MdOutlineStar className="text-yellow-400" />
+                        ) : (
+                          <MdOutlineStarBorder />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Feedback
+                  </label>
+                  <textarea
+                    name="feedback"
+                    value={feedbackForm.feedback}
+                    onChange={handleFeedbackChange}
+                    rows={4}
+                    placeholder="Tell us what you think about Markora..."
+                    required
+                    className="w-full p-3 rounded-xl border border-gray-700 bg-gray-800/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+                  />
+                </div>
+
+                {submitStatus.type && (
+                  <div className={`p-4 rounded-xl ${
+                    submitStatus.type === 'success' 
+                      ? 'bg-green-500/10 border border-green-500/20 text-green-400' 
+                      : 'bg-red-500/10 border border-red-500/20 text-red-400'
+                  }`}>
+                    {submitStatus.message}
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-xl hover:from-indigo-600 hover:to-purple-600 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-lg shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? (
+                    <span className="font-semibold flex items-center justify-center">
+                      <PulseLoader size={10} color="#FFFFFF" className="mr-2" />
+                      Sending...
+                    </span>
+                  ) : (
+                    <span className="font-semibold">Submit Feedback</span>
+                  )}
+                </button>
+              </form>
+            </div>
           </motion.div>
         </motion.div>
       </div>
