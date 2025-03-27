@@ -5,9 +5,7 @@ import Link from 'next/link';
 import { motion, useInView } from 'framer-motion';
 import { MdOutlineSubdirectoryArrowRight, MdOutlineUploadFile, MdOutlineTextFields, MdOutlineDownload, MdOutlineSearch, MdOutlineAnalytics, MdOutlineCheckCircle, MdKeyboardArrowDown, MdOutlineModeComment, MdOutlineStar, MdOutlineStarBorder, MdOutlineFeedback } from 'react-icons/md';
 import { TbHandClick } from "react-icons/tb";
-import { FiUsers } from "react-icons/fi";
 import TextFlip from '../components/TextFlip';
-import Image from 'next/image';
 import emailjs from '@emailjs/browser';
 import { PulseLoader } from 'react-spinners';
 
@@ -102,7 +100,7 @@ export default function HomePage() {
   const heroInView = useInView(heroRef, { once: true, margin: "-100px" });
   const stepsInView = useInView(stepsRef, { once: true, margin: "-100px" });
   const faqInView = useInView(faqRef, { once: true, margin: "-100px" });
-  const testimonialsInView = useInView(testimonialsRef, { once: true, margin: "-50px" });
+  // const testimonialsInView = useInView(testimonialsRef, { once: true, margin: "-50px" });
   const footerInView = useInView(footerRef, { once: true, margin: "-100px" });
   const feedbackInView = useInView(feedbackRef, { once: true, margin: "-100px" });
 
@@ -160,10 +158,10 @@ export default function HomePage() {
         rating: 0,
         feedback: ''
       });
-    } catch (error) {
+    } catch (error: any) {
       setSubmitStatus({
         type: 'error',
-        message: 'Failed to send feedback. Please try again later.'
+        message: error.message || 'Failed to send feedback. Please try again later.'
       });
     } finally {
       setIsSubmitting(false);
