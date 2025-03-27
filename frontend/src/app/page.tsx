@@ -158,10 +158,11 @@ export default function HomePage() {
         rating: 0,
         feedback: ''
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to send feedback. Please try again later.';
       setSubmitStatus({
         type: 'error',
-        message: error.message || 'Failed to send feedback. Please try again later.'
+        message: errorMessage
       });
     } finally {
       setIsSubmitting(false);
