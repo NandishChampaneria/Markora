@@ -3,7 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import Link from 'next/link';
-import { MdOutlineWaterDrop, MdOutlineSubdirectoryArrowRight, MdOutlineUploadFile, MdOutlineSearch, MdOutlineShield, MdOutlineSpeed, MdOutlineEmail, MdOutlinePerson, MdOutlineMessage } from "react-icons/md";
+import { MdOutlineSubdirectoryArrowRight, MdOutlineUploadFile, MdOutlineSearch, MdOutlineShield, MdOutlineSpeed, MdOutlineEmail, MdOutlinePerson, MdOutlineMessage } from "react-icons/md";
 import { TbHandClick } from "react-icons/tb";
 import emailjs from '@emailjs/browser';
 import { PulseLoader } from 'react-spinners';
@@ -92,7 +92,7 @@ export default function ContactPage() {
 
       setSubmitStatus({
         type: 'success',
-        message: 'Thank you for your interest! We\'ll get back to you within 24 hours with pricing and next steps.'
+        message: 'Thank you for your interest! We&apos;ll get back to you within 24 hours with pricing and next steps.'
       });
       
       // Reset form
@@ -287,7 +287,7 @@ export default function ContactPage() {
                 </span>
                 <h3 className="text-2xl font-semibold text-white mb-4 font-display">Send Images</h3>
                 <p className="text-gray-400 font-light">
-                  Securely send us your images via email or cloud storage link. We'll process them with your custom watermark.
+                  Securely send us your images via email or cloud storage link. We&apos;ll process them with your custom watermark.
                 </p>
               </div>
             </motion.div>
