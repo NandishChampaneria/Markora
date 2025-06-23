@@ -28,9 +28,9 @@ const Logo = ({ className = "" }) => {
         <span className="text-xl font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-transparent bg-clip-text tracking-tight">
           Markora
         </span>
-        <span className="text-xs font-medium bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-2 py-0.5 rounded-full">
+        {/* <span className="text-xs font-medium bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-2 py-0.5 rounded-full">
           Beta
-        </span>
+        </span> */}
       </div>
     </motion.div>
   );
